@@ -3,8 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using RegistrationFormEfCore.Data;
 using RegistrationFormEfCore.Dtos;
-using RegistrationFormEfCore.Models;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace RegistrationFormEfCore.Controllers
@@ -29,24 +27,6 @@ namespace RegistrationFormEfCore.Controllers
 
             //return View(_context.SelectedValues.Select(v => v.RegistrationId).Distinct().ToList());
 
-            //    var questions = _context.Questions.Include(q => q.DropDownOptions).ToList();
-            //    var showRegistrations = new List<ShowRegistration>();
-
-            //    foreach (var question in questions)
-            //    {
-
-            //        var showRegistration = new ShowRegistration()
-            //        {
-            //            //SelectedValue = _context.SelectedValues.ToList()
-
-            //            RegistrationId = question.Id,
-            //            Questions = question.Text,
-            //            DropDownOptions = question.DropDownOptions
-
-            //        };
-            //        showRegistrations.Add(showRegistration);
-            //    }
-            //    return View(showRegistrations);
         }
 
         [HttpPost]
@@ -56,54 +36,39 @@ namespace RegistrationFormEfCore.Controllers
             var selectedValues = _context.SelectedValues.Where(v => v.RegistrationId == regid).ToList();
             return RedirectToAction("Index");
 
-            var viewModel = new ShowRegistration
-            {
-                RegistrationId = regid,
-                OptionValues = new()
-            };
 
-            foreach (var question in questions)
-            {
-                var selectedValue = selectedValues.SingleOrDefault(v => v.RegistrationId == regid && v.QuestionId == question.Id);
+            //foreach (var question in questions)
+            //{
+            //    var selectedValue = selectedValues.SingleOrDefault(v => v.RegistrationId == regid && v.QuestionId == question.Id);
+            //    viewModel.SelectedValue.Add(new SelectedValue
+            //    {
+            //        Question = question,
+            //        SelectedOptionId = (selectedValue != null) ? selectedValue.DropDownOptionId : 0
+            //    });
+            //}
+            //return View(viewModel);
+        }
 
-                viewModel.OptionValues.Add(new OptionValue
-                {
-                    Question = question,
-                    SelectedOptionId = (selectedValue != null) ? selectedValue.DropDownOptionId : 0
-                });
+
+        //var oldValues = _context.SelectedValues.Where(v => v.RegistrationId == viewModel.RegistrationId);
+        //_context.SelectedValues.RemoveRange(oldValues);
+        
+        [HttpPost]
+        public IActionResult SaveChanges(ShowRegistration registrationForm)
+        {
+            if (registrationForm.RegistrationId == 0)
+            {
+                registrationForm.RegistrationId = 1;
             }
 
-            return View(viewModel);
-        }
+            var registration = _context.Registrations.Include(r => r.QuestionInformations).FirstOrDefault(r => r.Id == registrationForm.RegistrationId);
 
+            registration.QuestionInformations = registrationForm.SelectedValue;
 
-        public IActionResult Edit(int id)
-        {
-
-            return RedirectToAction("Index");
-        }
-
-        [HttpPost]
-        public IActionResult Edit(SelectedValue selectedValue)
-        {
-            _context.SelectedValues.Update(selectedValue);
-            _context.SaveChanges();
-            return RedirectToAction("Index");
-        }
-
-
-        public IActionResult SaveChanges(List<ShowRegistration> showRegistration)
-        {
-            var NewSelectedValues = new SelectedValue()
-            {
-                //QuestionId = showRegistration
-                //DropDownOptionId = showRegistration.
-            };
-            _context.SelectedValues.Add(NewSelectedValues);
+            _context.Update(registration);
             _context.SaveChanges();
 
             return RedirectToAction("Index");
-
         }
     }
 }

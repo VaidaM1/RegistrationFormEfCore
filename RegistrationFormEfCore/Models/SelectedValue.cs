@@ -7,6 +7,5 @@
         public Question Question { get; set; }
         public int DropDownOptionId { get; set; }
         public DropDownOption DropDownOption { get; set; }
-
     }
 }

@@ -3,7 +3,7 @@
     ViewData["Title"] = "Registracijos požymiai";
 }
 
-@using (Html.BeginForm("SaveChanges", "Registration", FormMethod.Post, new { id = "form" }))
+@using (Html.BeginForm("SaveChanges", "Registration", FormMethod.Post))
 {
     <table class="table table-bordered">
         <thead class="thead-light">
@@ -13,67 +13,60 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (var question in Model.SelectedValue)
+            @for (int i = 0; i < Model.SelectedValue.Count; i++)
             {
                 <tr>
-                    <td class="align-middle">@question.Question.Text</td>
+                    <td class="align-middle">@Model.SelectedValue[i].Question.Text</td>
+                    @Html.HiddenFor(a => Model.SelectedValue[i].QuestionId)
+                    @Html.HiddenFor(a => Model.SelectedValue[i].RegistrationId)
                     @*<td>@Html.HiddenFor(a => a.RegistrationId)</td>*@
                     <td>
                         <div class="align-middle">
-                            @Html.DropDownListFor(a => question.DropDownOptionId, new MultiSelectList(question.Question.DropDownOptions, "Id", "Text"), new { @class = "w-50 init-disabled" })
+                            @Html.DropDownListFor(a => Model.SelectedValue[i].DropDownOptionId, new SelectList(Model.SelectedValue[i].Question.DropDownOptions, "Id", "Text"), new { @class = "w-50 init-disabled" })
 
                         </div>
                     </td>
                 </tr>
             }
+            @*@foreach (var question in Model.SelectedValue)//foreach su razor neveikia
+                {
+                    <tr>
+                        <td class="align-middle">@question.Question.Text</td>
+
+                        <td>
+                            <div class="align-middle">
+                                @Html.DropDownListFor(a => question.DropDownOptionId, new SelectList(question.Question.DropDownOptions, "Id", "Text"), new { @class = "w-50 init-disabled" })
+
+                            </div>
+                        </td>
+                    </tr>
+                }*@
         </tbody>
     </table>
     @Html.HiddenFor(m => m.RegistrationId)
 
     <button id="edit" type="button">Koreguoti požymius</button>
-    <button class="init-disabled" type="submit">Saugoti pataisymus</button>
-    <button id="reset-form" class="init-disabled" type="reset">Atšaukti pataisymus</button>
+    <button class="init-disabled" type="submit" disabled>Saugoti pataisymus</button>
+    <button id="reset-form" class="init-disabled" type="reset" disabled>Atšaukti pataisymus</button>
 }
 
-@*<body>
-        <form method="post">
-            <fieldset>
-                <legend>Registracijos požymiai</legend>
 
-                @Html.LabelFor(s => s.Option)
-                @Html.DropDownListFor(s => s.Option, new MultiSelectList(Model.Option, "Id", "Name"), "All")
+<script>
+    let form = document.getElementById('form');
+    let editBtn = document.getElementById('edit');
+    let resetBtn = document.getElementById('reset-form');
+    let initDisabledElements = document.getElementsByClassName('init-disabled');
+    for (let element of initDisabledElements) {
+        element.disabled = true;
+    }
 
-                <div>
-                    @foreach (var Item in @Model.Option)
-                    {
-                        @Item.Name @Item.Shop?.Name
-                        @Html.ActionLink("Koreguoti požymius", "Edit", "Registration", new { id = Option.Id }, null)
-                                @Html.ActionLink("Saugoti pataisymus", "Save", "Registration", new { id = shopItem.Id }, null)
-                                @Html.ActionLink("Atšaukti pataisymus", "Delete", "Registration", new { id = shopItem.Id }, null)
-                            }
-                    }
-                </div>
-            </fieldset>
-        </form>
-    </body>*@
+    //document.getElementsByClassName("init-disabled").disabled = true;
 
-@section scripts
-{
-    <script>
-        let form = document.getElementById('form');
-        let editBtn = document.getElementById('edit');
-        let resetBtn = document.getElementById('reset-form');
-        let initDisabledElements = document.getElementsByClassName('init-disabled');
-        editBtn.addEventListener('click', function () {
-            for (let element of initDisabledElements)
-                element.disabled = false;
-            editBtn.disabled = true;
-        });
-        resetBtn.addEventListener('click', function () {
-            form.reset();
-            for (let element of initDisabledElements)
-                element.disabled = true;
-            editBtn.disabled = false;
-        });
-    </script>
-}
+    editBtn.addEventListener('click', function () {
+        for (let element of initDisabledElements)
+            element.disabled = false;
+        editBtn.disabled = true;
+    });
+
+
+</script>

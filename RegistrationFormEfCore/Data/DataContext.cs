@@ -1,13 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RegistrationFormEfCore.Models;
-using System.Collections.Generic;
 
 namespace RegistrationFormEfCore.Data
 {
     public class DataContext : DbContext
     {
-        internal readonly IEnumerable<object> ShowRegistration;
 
+        public DbSet<Registration> Registrations { get; set; }
         public DbSet<DropDownOption> DropDownOptions { get; set; }
         public DbSet<Question> Questions { get; set; }
         public DbSet<SelectedValue> SelectedValues { get; set; }
@@ -20,6 +19,9 @@ namespace RegistrationFormEfCore.Data
         {
             modelBuilder.Entity<SelectedValue>()
                 .HasKey(cb => new { cb.QuestionId, cb.DropDownOptionId });
+
+            modelBuilder.Entity<Registration>()
+                .HasMany(r => r.QuestionInformations);
             //modelBuilder.Entity<SelectedValue>()
             //    .HasOne(cb => cb.Question)
             //    .WithMany()
